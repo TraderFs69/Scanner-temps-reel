@@ -56,9 +56,15 @@ def get_intraday_agg(symbol: str,
     """
 from datetime import datetime, timedelta, UTC
 
-to_ = datetime.now(UTC)
-from_ = to_ - timedelta(hours=lookback_hours)
-
+def get_intraday_agg(symbol: str,
+                     multiplier: int = 5,
+                     timespan: str = "minute",
+                     lookback_hours: int = 6) -> pd.DataFrame:
+    """
+    Récupère les chandelles intraday récentes pour un symbole.
+    """
+    to_ = datetime.now(UTC)
+    from_ = to_ - timedelta(hours=lookback_hours)
 
     url = f"{BASE_URL}/v2/aggs/ticker/{symbol}/range/{multiplier}/{timespan}/{from_.date()}/{to_.date()}"
     params = {
@@ -67,6 +73,7 @@ from_ = to_ - timedelta(hours=lookback_hours)
         "sort": "asc",
         "limit": 5000
     }
+
     r = requests.get(url, params=params)
     r.raise_for_status()
     data = r.json()
@@ -76,8 +83,7 @@ from_ = to_ - timedelta(hours=lookback_hours)
         return pd.DataFrame()
 
     df = pd.DataFrame(results)
-    # Colonnes Polygon: t (timestamp ms), o,h,l,c,v
-    df["datetime"] = pd.to_datetime(df["t"], unit="ms")
+    df["datetime"] = pd.to_datetime(df["t"], unit="ms", utc=True)
     df = df.set_index("datetime").sort_index()
     df.rename(columns={"o": "open", "h": "high", "l": "low",
                        "c": "close", "v": "volume"}, inplace=True)
