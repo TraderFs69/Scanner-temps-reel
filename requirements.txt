@@ -1,6 +1,6 @@
-os
-time
-requets
+streamlit
 pandas
 numpy
-datetime
+requests
+python-dotenv
+
