@@ -54,8 +54,11 @@ def get_intraday_agg(symbol: str,
     Récupère les chandelles intraday récentes pour un symbole.
     Par défaut: 5 minutes sur ~6h.
     """
-    to_ = datetime.utcnow()
-    from_ = to_ - timedelta(hours=lookback_hours)
+from datetime import datetime, timedelta, UTC
+
+to_ = datetime.now(UTC)
+from_ = to_ - timedelta(hours=lookback_hours)
+
 
     url = f"{BASE_URL}/v2/aggs/ticker/{symbol}/range/{multiplier}/{timespan}/{from_.date()}/{to_.date()}"
     params = {
